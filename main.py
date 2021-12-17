@@ -15,3 +15,5 @@ while True :      ##무한루프(여기가 게임 진행시 이벤트 처리코�
             pygame.quit()               ##파이게임을 종료
             sys.exit()                  ##프로그램 종료
         pygame.display.update()         ##이벤트처리후 디스플레이 출력
+
+
