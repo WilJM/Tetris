@@ -1,0 +1,2 @@
+def Tetris():
+    print("abcd")
