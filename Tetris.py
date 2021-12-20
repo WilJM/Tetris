@@ -10,8 +10,8 @@ class Shape:
         self.now = 0
 
     def set_shape(self, num, x, y) -> None:
-        self.point[num][0] = 10 +x*10
-        self.point[num][1] = 10 +y*10
+        self.point[num][0] = x*10
+        self.point[num][1] = y*10
 
     def get_shape_x(self, num):
         return self.point[num][0]
@@ -128,5 +128,12 @@ def space_click(num):
 '''
 스페이스 바 버튼 클릭시 시계방향으로 shape 90도 회전
 '''
+
+class block:
+    def __init__(self) -> None:
+        self.left = 100
+        self.right = 300
+        self.down = 400
+    
 
 
