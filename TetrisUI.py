@@ -1,6 +1,4 @@
-from asyncio.windows_events import NULL
 import sys
-from tkinter import SEL_FIRST
 import Tetris
 import pygame
 from pygame.locals import *
@@ -50,7 +48,7 @@ class TetrisUI():
         sys.exit()
 
     def key_event(self, event:pygame.key.get_pressed):
-        if event is NULL:
+        if event is None:
             event = pygame.key.get_pressed()
 
         if event[pygame.K_LEFT]:
