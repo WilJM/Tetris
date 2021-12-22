@@ -1,6 +1,9 @@
+from asyncio.windows_events import NULL
 import sys
+from tkinter import SEL_FIRST
 import Tetris
 import pygame
+import random
 from pygame.locals import *
 
 class TetrisUI():
@@ -14,31 +17,38 @@ class TetrisUI():
         pygame.display.set_caption("Tetris")    ##캡션을 hello world로 출력
         self.clock = pygame.time.Clock()
         self.speed = speed # 1초당 떨어지는 속도(난이도)
-        self.pos_x = [0,0,0,0]
-        self.pos_y = [0,0,0,0]
-        self.now = 0
+        self.now = random.randint(0,23)
         self.one_block = 10 # 좌우 움직이는 거리
-        self.current_x = 100
-        self.current_y = 100
+        self.current_x = 100 #처음 도형 시작하는 x좌표
+        self.current_y = 100 #처음 도형 시작하는 y좌표
+        self.current_block = Tetris.Current() #현재 움직일 수 있는 도형
+        self.game_map = Tetris.Block() #쌓여 있는 블럭들
+        self.block = Tetris.rand_block(self.now) 
 
-    def game_start(self):
+    def game_start(self):        
         while True:
             self.current_y += self.speed
             
             for event in pygame.event.get():
                 if event.type == QUIT:          ##종료버튼이 눌리면
-                    self.quit()
+                    self.event_quit()
                 
                 self.key_event(pygame.key.get_pressed())
-            
+
             self.screen.fill((0,0,0))
 
             for i in range(4):
-                self.pos_x[i] = self.current_x + Tetris.t_shape[self.now].get_shape_x(i)
-                self.pos_y[i] = self.current_y + Tetris.t_shape[self.now].get_shape_y(i)
-                pygame.draw.rect(self.screen,(255,255,255),(self.pos_x[i], self.pos_y[i] , 10, 10))
+                self.current_block.set_pos(i, self.current_x + self.block[i][1], self.current_y + self.block[i][0])
+                pygame.draw.rect(self.screen,(255,255,255),(self.current_block.get_pos_x(i), self.current_block.get_pos_y(i) , 10, 10))
+            self.block_event()
+            if len(self.game_map.blocks) > 0:
+                for i in range(len(self.game_map.blocks)):
+                    pygame.draw.rect(self.screen,(255,255,255),(self.game_map.get_blocks(i)[1], self.game_map.get_blocks(i)[0], 10, 10))
 
-            pygame.draw.lines(self.screen,(255,255,255),True, [[100,100],[100,400],[300,400],[300,100]],5)
+            pygame.draw.lines(self.screen,(255,255,255), True, [[100,100],[100,400],[300,400],[300,100]],5)
+
+            for i in range(4):
+                pygame.draw.rect(self.screen,(255,255,255),(self.block[i][1], self.block[i][0], 10, 10))
 
             pygame.display.update()         ##이벤트처리후 디스플레이 출력
             self.clock.tick(10)
@@ -48,7 +58,7 @@ class TetrisUI():
         sys.exit()
 
     def key_event(self, event:pygame.key.get_pressed):
-        if event is None:
+        if event is NULL:
             event = pygame.key.get_pressed()
 
         if event[pygame.K_LEFT]:
@@ -61,15 +71,17 @@ class TetrisUI():
             self.current_y += self.one_block
 
         elif event[pygame.K_UP]:
-            self.now = (self.now + 1) % 4
-            for i in range(4):
-                self.pos_x[i] = self.current_x + Tetris.t_shape[self.now].get_shape_x(i)
-                self.pos_y[i] = self.current_y + Tetris.t_shape[self.now].get_shape_y(i)
+            self.now = (self.now + 6) % 24
+            self.block = Tetris.rand_block(self.now)
 
         Tetris.init_shape()
 
+    def block_event(self):
         for i in range(4):
-            self.pos_x[i] = Tetris.t_shape[self.now].get_shape_x(i)
-            self.pos_y[i] = Tetris.t_shape[self.now].get_shape_y(i)
-
-    
+            if self.current_block.get_pos_y(i) == 390:
+                self.game_map.set_block(self.current_block.get_pos())
+                self.current_block.__init__()
+                self.current_x = 100; self.current_y = 100
+                self.now = random.randint(0,23)
+                self.block = Tetris.rand_block(self.now)
+                break
