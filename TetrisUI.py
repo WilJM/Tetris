@@ -68,12 +68,23 @@ class TetrisUI():
             for i in range(4):
                 if self.current_x + self.block[i][1] <= 100:
                     return
+                if len(self.game_map.blocks) > 0:    
+                    for lst in self.game_map.blocks:
+                        if self.current_y + self.block[i][0] <= lst[0] and lst[0] <= self.current_y + self.block[i][0] +10:   
+                            if self.current_x + self.block[i][1] == lst[1] + 10:
+                                return
             self.current_x -= self.one_block
 
         elif event[pygame.K_RIGHT]:
             for i in range(4):
                 if self.current_x + self.block[i][1] >= 290:
                     return
+
+                if len(self.game_map.blocks) > 0:    
+                    for lst in self.game_map.blocks:
+                        if self.current_y + self.block[i][0] <= lst[0] and lst[0] <= self.current_y + self.block[i][0] +10:   
+                            if self.current_x + self.block[i][1]+10 == lst[1]:
+                                return
             self.current_x += self.one_block
 
         elif event[pygame.K_DOWN]:
