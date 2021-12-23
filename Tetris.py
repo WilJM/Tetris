@@ -138,20 +138,17 @@ class Block:
     Attributes:
         blocks      : 쌓여있는 사각형들  (list)
     Methods:
-        get_blocks  : num번째 쌓여있는 사각형의 list 리턴 
+        get_blocks  : num번째 쌓여있는 사각형의 list 리턴
         set_block   : 쌓이는 블럭이 생길 시 list에 추가
     '''
     def __init__(self) -> None:
-        self.blocks = [] 
+        self.blocks = []
 
     def get_blocks(self, num)-> list:
         return self.blocks[num]
     
     def set_block(self,list_a):
         self.blocks += list_a
-
-    def limit_block(self,x,y):
-        pass
     
     def erase_block(self,line_num):
         pass
@@ -187,6 +184,7 @@ class Current:
 
     def get_pos_y(self, num) ->int:
         return self.pos[num][0]
+
 
 def rand_block(num)->list:
     '''
