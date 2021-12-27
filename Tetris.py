@@ -137,12 +137,15 @@ class Block:
     
     Attributes:
         blocks      : 쌓여있는 사각형들  (list)
+        dic_y       : y축 기준으로 사각형이 몇개 있는 지 key : y값, value : 사각형 갯수 (dictionary)
     Methods:
         get_blocks  : num번째 쌓여있는 사각형의 list 리턴
         set_block   : 쌓이는 블럭이 생길 시 list에 추가
+        add_dic_y   : dic_y 딕셔너리에 key, value 추가
     '''
     def __init__(self) -> None:
         self.blocks = []
+        self.dic_y = {}
 
     def get_blocks(self, num)-> list:
         return self.blocks[num]
@@ -150,9 +153,35 @@ class Block:
     def set_block(self,list_a):
         self.blocks += list_a
     
-    def erase_block(self,line_num):
-        pass
+    def add_dic_y(self, key):
+        check = self.dic_y.get(key)
+        if check == None:
+            self.dic_y[key] = 1
+        else:
+            self.dic_y[key] += 1
+
+    def erase_line(self, num):
+        while 1:
+            count =0
+            for b in self.blocks:
+                if b[0] == num:
+                    count += 1
+                    self.blocks.remove(b)
+            if count ==0:
+                break
+
+    def push_down(self, num):
+        for block in self.blocks:
+            if block[0] < num:
+                block[0] += 10
+        self.change_key(num)
         
+    def change_key(self, num):
+        self.dic_y[num] =0
+        for key in list(self.dic_y):
+            if key < num:
+                self.dic_y[key + 10]=self.dic_y.pop(key)
+
     def end_game(self):
         pass
 
