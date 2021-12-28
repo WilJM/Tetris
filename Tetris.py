@@ -14,7 +14,7 @@ class Num(Enum):
     '''
     first =0; second =1; third=2; forth =3
 
-class Shape:
+class Block:
     '''
     블록의 각 모양을 x좌표, y좌표로 표현하기 위한 클래스
     사각형 4개를 합쳐 하나의 블록을 만들기 위함
@@ -23,29 +23,112 @@ class Shape:
         point       : 4개의 사각형의 [y,x] 좌표 (list)
         rect_size   : point에서 1을 한칸으로 기준했기 때문에 원하는 사각형의 크기를 맞추기 위한 상수 (int)
     Methods:
-        set_shape   : num을 통해 원하는 사각형의 x, y좌표를 지정할 수 있음
-        get_shape_x : num번째 사각형의 x좌표 return
-        get_shape_y : num번째 사각형의 y좌표 return
+        set_square   : num을 통해 원하는 사각형의 x, y좌표를 지정할 수 있음
+        get_square_x : num번째 사각형의 x좌표 return
+        get_square_y : num번째 사각형의 y좌표 return
     '''
     def __init__(self) -> None:
         self.point = [[0,0], [0,0], [0,0], [0,0]]
         self.rect_size = 10
-    def set_shape(self, num, x, y) -> None:
+
+    def set_square(self, num, x, y) -> None:
         self.point[num][1] = x * self.rect_size
         self.point[num][0] = y * self.rect_size
 
-    def get_shape_x(self, num):
+    def get_square_x(self, num):
         return self.point[num][1]
 
-    def get_shape_y(self, num):
+    def get_square_y(self, num):
         return self.point[num][0]
 
-t_shape = [Shape(), Shape(), Shape(), Shape()]
-l_shape = [Shape(), Shape(), Shape(), Shape()]
-o_shape = [Shape(), Shape(), Shape(), Shape()]
-z_shape = [Shape(), Shape(), Shape(), Shape()]
-i_shape = [Shape(), Shape(), Shape(), Shape()]
-h_shape = [Shape(), Shape(), Shape(), Shape()]
+class Current:
+    '''
+    현재 내려오고 있는 블럭을 나타내는 클래스
+    
+    Attributes:
+        pos         : 4개의 사각형의 [y,x] 좌표 (list)
+    Methods:
+        set_pos     : num을 통해 원하는 사각형의 x, y좌표를 지정할 수 있음
+        get_pos     : pos를 return
+        get_pos_x   : num번째 사각형의 x좌표 return
+        get_pos_y   : num번째 사각형의 x좌표 return
+    '''
+    def __init__(self) -> None:
+        self.point = [[0,0], [0,0], [0,0], [0,0]]
+    
+    def set_square(self, num, x, y):
+        self.point[num] = [y,x]
+
+    def get_square(self) ->list[list]:
+        return self.point
+
+    def get_square_x(self, num) ->int:
+        return self.point[num][1]
+
+    def get_square_y(self, num) ->int:
+        return self.point[num][0]
+
+class Stack:
+    '''
+    쌓여있는 사각형들을 저장하는 클래스
+    
+    Attributes:
+        stacks      : 쌓여있는 사각형들  (list)
+        count_y     : y축 기준으로 사각형이 몇개 있는 지 key : y값, value : 사각형 갯수 (dictionary)
+    Methods:
+        get_stack   : num번째 쌓여있는 사각형의 list 리턴
+        set_block   : 쌓이는 블럭이 생길 시 list에 추가
+        add_count_y : count_y 딕셔너리에 key, value 추가
+        remove_list : blocks 리스트에서 특정 y값(num)이 같은 리스트 제거
+        stack_down  : 지워진 줄 위에 위치한 블록들의 리스트들 y값 한칸씩 내리기 위한 함수
+        change_key  : count_y 저장된 key값 또한 한칸씩 내리기 위한 함수
+    '''
+    def __init__(self) -> None:
+        self.stacks = []
+        self.count_y = {}
+
+    def get_stack(self, num)-> list:
+        return self.stacks[num]
+    
+    def set_stacks(self,list_a):
+        self.stacks += list_a
+    
+    def add_count_y(self, key):
+        check = self.count_y.get(key)
+        if check == None:
+            self.count_y[key] = 1
+        else:
+            self.count_y[key] += 1
+
+    def remove_list(self, num):
+        while 1:
+            count =0
+            for b in self.stacks:
+                if b[0] == num:
+                    count += 1
+                    self.stacks.remove(b)
+            if count ==0:
+                break
+
+    def stack_down(self, num):
+        for block in self.stacks:
+            if block[0] < num:
+                block[0] += 10
+        self.change_key(num)
+        
+    def change_key(self, num):
+        self.count_y[num] =0
+        for key in list(self.count_y):
+            if key < num:
+                self.count_y[key + 10]=self.count_y.pop(key)
+
+
+t_shape = [Block(), Block(), Block(), Block()]
+i_shape = [Block(), Block(), Block(), Block()]
+o_shape = [Block(), Block(), Block(), Block()]
+z_shape = [Block(), Block(), Block(), Block()]
+l_shape = [Block(), Block(), Block(), Block()]
+h_shape = [Block(), Block(), Block(), Block()]
 
 '''
 한 블럭 당 4가지의 회전한 모양이 있기 때문에 shape 클래스 객체를 이용해 list형식으로 선언함
@@ -69,7 +152,7 @@ def init_shape():
     .... 0... .... .0.. 3. (0,0) (0,1) (0,2) (1,1)
     .... .... .... .... 4. (0,1) (1,0) (1,1) (2,1)
 
-    <l_shape>
+    <i_shape>
     0... 0000 0... 0000 1. (0,0) (1,0) (2,0) (3,0)
     0... .... 0... .... 2. (0,0) (0,1) (0,2) (0,3)
     0... .... 0... .... 3. (0,0) (1,0) (2,0) (3,0)
@@ -87,10 +170,10 @@ def init_shape():
     .... 0... .... 0... 3. (0,0) (0,1) (1,1) (1,2)
     .... .... .... .... 4. (0,1) (1,0) (1,1) (2,0)
 
-    <i_shape>
+    <l_shape>
     0... ..0. 00.. 000. 1. (0,0) (1,0) (2,0) (2,1)
     0... 000. .0.. 0... 2. (1,0) (1,1) (1,2) (0,2) 
-    00.. .... .0.. .... 3. (0,0) (0,1) (1,0) (2,0) 
+    00.. .... .0.. .... 3. (0,0) (0,1) (1,1) (2,1) 
     .... .... .... .... 4. (0,0) (0,1) (0,2) (1,0) 
 
     <h_shape>
@@ -100,117 +183,35 @@ def init_shape():
     .... .... .... .... 4. (0,0) (1,0) (1,1) (2,1)
 
     '''
-    t_shape[Num.first.value].set_shape(Num.first.value, 1, 0); t_shape[Num.first.value].set_shape(Num.second.value, 0,1); t_shape[Num.first.value].set_shape(Num.third.value, 1, 1); t_shape[Num.first.value].set_shape(Num.forth.value, 2, 1)
-    t_shape[Num.second.value].set_shape(Num.first.value, 0, 0); t_shape[Num.second.value].set_shape(Num.second.value, 0, 1); t_shape[Num.second.value].set_shape(Num.third.value, 1, 1); t_shape[Num.second.value].set_shape(Num.forth.value, 0, 2) 
-    t_shape[Num.third.value].set_shape(Num.first.value, 0, 0); t_shape[Num.third.value].set_shape(Num.second.value, 1, 0); t_shape[Num.third.value].set_shape(Num.third.value, 2, 0); t_shape[Num.third.value].set_shape(Num.forth.value, 1, 1) 
-    t_shape[Num.forth.value].set_shape(Num.first.value, 1, 0); t_shape[Num.forth.value].set_shape(Num.second.value, 0, 1); t_shape[Num.forth.value].set_shape(Num.third.value, 1, 1); t_shape[Num.forth.value].set_shape(Num.forth.value, 1, 2)  
+    t_shape[Num.first.value].set_square(Num.first.value, 1, 0);  t_shape[Num.first.value].set_square(Num.second.value, 0,1);  t_shape[Num.first.value].set_square(Num.third.value, 1, 1);  t_shape[Num.first.value].set_square(Num.forth.value, 2, 1)
+    t_shape[Num.second.value].set_square(Num.first.value, 0, 0); t_shape[Num.second.value].set_square(Num.second.value, 0, 1);t_shape[Num.second.value].set_square(Num.third.value, 1, 1); t_shape[Num.second.value].set_square(Num.forth.value, 0, 2) 
+    t_shape[Num.third.value].set_square(Num.first.value, 0, 0);  t_shape[Num.third.value].set_square(Num.second.value, 1, 0); t_shape[Num.third.value].set_square(Num.third.value, 2, 0);  t_shape[Num.third.value].set_square(Num.forth.value, 1, 1) 
+    t_shape[Num.forth.value].set_square(Num.first.value, 1, 0);  t_shape[Num.forth.value].set_square(Num.second.value, 0, 1); t_shape[Num.forth.value].set_square(Num.third.value, 1, 1);  t_shape[Num.forth.value].set_square(Num.forth.value, 1, 2)  
 
-    l_shape[Num.first.value].set_shape(Num.first.value, 0, 0); l_shape[Num.first.value].set_shape(Num.second.value, 0, 1); l_shape[Num.first.value].set_shape(Num.third.value, 0, 2); l_shape[Num.first.value].set_shape(Num.forth.value, 0, 3)
-    l_shape[Num.second.value].set_shape(Num.first.value, 0, 0); l_shape[Num.second.value].set_shape(Num.second.value, 1, 0); l_shape[Num.second.value].set_shape(Num.third.value, 2, 0); l_shape[Num.second.value].set_shape(Num.forth.value, 3, 0)
-    l_shape[Num.third.value].set_shape(Num.first.value, 0, 0); l_shape[Num.third.value].set_shape(Num.second.value, 0, 1); l_shape[Num.third.value].set_shape(Num.third.value, 0, 2); l_shape[Num.third.value].set_shape(Num.forth.value, 0, 3)
-    l_shape[Num.forth.value].set_shape(Num.first.value, 0, 0); l_shape[Num.forth.value].set_shape(Num.second.value, 1, 0); l_shape[Num.forth.value].set_shape(Num.third.value, 2, 0); l_shape[Num.forth.value].set_shape(Num.forth.value, 3, 0)
+    i_shape[Num.first.value].set_square(Num.first.value, 0, 0);  i_shape[Num.first.value].set_square(Num.second.value, 0, 1); i_shape[Num.first.value].set_square(Num.third.value, 0, 2);  i_shape[Num.first.value].set_square(Num.forth.value, 0, 3)
+    i_shape[Num.second.value].set_square(Num.first.value, 0, 0); i_shape[Num.second.value].set_square(Num.second.value, 1, 0);i_shape[Num.second.value].set_square(Num.third.value, 2, 0); i_shape[Num.second.value].set_square(Num.forth.value, 3, 0)
+    i_shape[Num.third.value].set_square(Num.first.value, 0, 0);  i_shape[Num.third.value].set_square(Num.second.value, 0, 1); i_shape[Num.third.value].set_square(Num.third.value, 0, 2);  i_shape[Num.third.value].set_square(Num.forth.value, 0, 3)
+    i_shape[Num.forth.value].set_square(Num.first.value, 0, 0);  i_shape[Num.forth.value].set_square(Num.second.value, 1, 0); i_shape[Num.forth.value].set_square(Num.third.value, 2, 0);  i_shape[Num.forth.value].set_square(Num.forth.value, 3, 0)
 
-    o_shape[Num.first.value].set_shape(Num.first.value, 0, 0); o_shape[Num.first.value].set_shape(Num.second.value, 1, 0); o_shape[Num.first.value].set_shape(Num.third.value, 0, 1); o_shape[Num.first.value].set_shape(Num.forth.value, 1, 1)
-    o_shape[Num.second.value].set_shape(Num.first.value, 0, 0); o_shape[Num.second.value].set_shape(Num.second.value,1, 0); o_shape[Num.second.value].set_shape(Num.third.value, 0, 1); o_shape[Num.second.value].set_shape(Num.forth.value, 1, 1)
-    o_shape[Num.third.value].set_shape(Num.first.value, 0, 0); o_shape[Num.third.value].set_shape(Num.second.value, 1, 0); o_shape[Num.third.value].set_shape(Num.third.value, 0, 1); o_shape[Num.third.value].set_shape(Num.forth.value, 1, 1)
-    o_shape[Num.forth.value].set_shape(Num.first.value, 0, 0); o_shape[Num.forth.value].set_shape(Num.second.value, 1, 0); o_shape[Num.forth.value].set_shape(Num.third.value, 0, 1); o_shape[Num.forth.value].set_shape(Num.forth.value, 1, 1)
+    o_shape[Num.first.value].set_square(Num.first.value, 0, 0);  o_shape[Num.first.value].set_square(Num.second.value, 1, 0); o_shape[Num.first.value].set_square(Num.third.value, 0, 1);  o_shape[Num.first.value].set_square(Num.forth.value, 1, 1)
+    o_shape[Num.second.value].set_square(Num.first.value, 0, 0); o_shape[Num.second.value].set_square(Num.second.value,1, 0); o_shape[Num.second.value].set_square(Num.third.value, 0, 1); o_shape[Num.second.value].set_square(Num.forth.value, 1, 1)
+    o_shape[Num.third.value].set_square(Num.first.value, 0, 0);  o_shape[Num.third.value].set_square(Num.second.value, 1, 0); o_shape[Num.third.value].set_square(Num.third.value, 0, 1);  o_shape[Num.third.value].set_square(Num.forth.value, 1, 1)
+    o_shape[Num.forth.value].set_square(Num.first.value, 0, 0);  o_shape[Num.forth.value].set_square(Num.second.value, 1, 0); o_shape[Num.forth.value].set_square(Num.third.value, 0, 1);  o_shape[Num.forth.value].set_square(Num.forth.value, 1, 1)
 
-    z_shape[Num.first.value].set_shape(Num.first.value, 0, 0); z_shape[Num.first.value].set_shape(Num.second.value, 1, 0); z_shape[Num.first.value].set_shape(Num.third.value, 1, 1); z_shape[Num.first.value].set_shape(Num.forth.value, 2, 1)
-    z_shape[Num.second.value].set_shape(Num.first.value, 1, 0); z_shape[Num.second.value].set_shape(Num.second.value, 0, 1); z_shape[Num.second.value].set_shape(Num.third.value, 1, 1); z_shape[Num.second.value].set_shape(Num.forth.value, 0, 2)
-    z_shape[Num.third.value].set_shape(Num.first.value, 0, 0); z_shape[Num.third.value].set_shape(Num.second.value, 1, 0); z_shape[Num.third.value].set_shape(Num.third.value, 1, 1); z_shape[Num.third.value].set_shape(Num.forth.value, 2, 1)
-    z_shape[Num.forth.value].set_shape(Num.first.value, 1, 0); z_shape[Num.forth.value].set_shape(Num.second.value, 0, 1); z_shape[Num.forth.value].set_shape(Num.third.value, 1, 1); z_shape[Num.forth.value].set_shape(Num.forth.value, 0, 2)
+    z_shape[Num.first.value].set_square(Num.first.value, 0, 0);  z_shape[Num.first.value].set_square(Num.second.value, 1, 0); z_shape[Num.first.value].set_square(Num.third.value, 1, 1);  z_shape[Num.first.value].set_square(Num.forth.value, 2, 1)
+    z_shape[Num.second.value].set_square(Num.first.value, 1, 0); z_shape[Num.second.value].set_square(Num.second.value, 0, 1);z_shape[Num.second.value].set_square(Num.third.value, 1, 1); z_shape[Num.second.value].set_square(Num.forth.value, 0, 2)
+    z_shape[Num.third.value].set_square(Num.first.value, 0, 0);  z_shape[Num.third.value].set_square(Num.second.value, 1, 0); z_shape[Num.third.value].set_square(Num.third.value, 1, 1);  z_shape[Num.third.value].set_square(Num.forth.value, 2, 1)
+    z_shape[Num.forth.value].set_square(Num.first.value, 1, 0);  z_shape[Num.forth.value].set_square(Num.second.value, 0, 1); z_shape[Num.forth.value].set_square(Num.third.value, 1, 1);  z_shape[Num.forth.value].set_square(Num.forth.value, 0, 2)
 
-    i_shape[Num.first.value].set_shape(Num.first.value, 0, 0); i_shape[Num.first.value].set_shape(Num.second.value, 0, 1); i_shape[Num.first.value].set_shape(Num.third.value, 0, 2); i_shape[Num.first.value].set_shape(Num.forth.value, 1, 2)
-    i_shape[Num.second.value].set_shape(Num.first.value, 0, 1); i_shape[Num.second.value].set_shape(Num.second.value, 1, 1); i_shape[Num.second.value].set_shape(Num.third.value, 2, 1); i_shape[Num.second.value].set_shape(Num.forth.value, 2, 0)
-    i_shape[Num.third.value].set_shape(Num.first.value, 0, 0); i_shape[Num.third.value].set_shape(Num.second.value, 1, 0); i_shape[Num.third.value].set_shape(Num.third.value, 0, 1); i_shape[Num.third.value].set_shape(Num.forth.value, 0, 2)
-    i_shape[Num.forth.value].set_shape(Num.first.value, 0, 0); i_shape[Num.forth.value].set_shape(Num.second.value, 1, 0); i_shape[Num.forth.value].set_shape(Num.third.value, 2, 0); i_shape[Num.forth.value].set_shape(Num.forth.value, 0, 1)
+    l_shape[Num.first.value].set_square(Num.first.value, 0, 0);  l_shape[Num.first.value].set_square(Num.second.value, 0, 1); l_shape[Num.first.value].set_square(Num.third.value, 0, 2);  l_shape[Num.first.value].set_square(Num.forth.value, 1, 2)
+    l_shape[Num.second.value].set_square(Num.first.value, 0, 1); l_shape[Num.second.value].set_square(Num.second.value, 1, 1);l_shape[Num.second.value].set_square(Num.third.value, 2, 1); l_shape[Num.second.value].set_square(Num.forth.value, 2, 0)
+    l_shape[Num.third.value].set_square(Num.first.value, 0, 0);  l_shape[Num.third.value].set_square(Num.second.value, 1, 0); l_shape[Num.third.value].set_square(Num.third.value, 1, 1);  l_shape[Num.third.value].set_square(Num.forth.value, 1, 2)
+    l_shape[Num.forth.value].set_square(Num.first.value, 0, 0);  l_shape[Num.forth.value].set_square(Num.second.value, 1, 0); l_shape[Num.forth.value].set_square(Num.third.value, 2, 0);  l_shape[Num.forth.value].set_square(Num.forth.value, 0, 1)
 
-    h_shape[Num.first.value].set_shape(Num.first.value, 0, 1); h_shape[Num.first.value].set_shape(Num.second.value, 1, 1); h_shape[Num.first.value].set_shape(Num.third.value, 1, 0); h_shape[Num.first.value].set_shape(Num.forth.value, 2, 0)
-    h_shape[Num.second.value].set_shape(Num.first.value, 0, 0); h_shape[Num.second.value].set_shape(Num.second.value, 0, 1); h_shape[Num.second.value].set_shape(Num.third.value, 1, 1); h_shape[Num.second.value].set_shape(Num.forth.value, 1, 2)
-    h_shape[Num.third.value].set_shape(Num.first.value, 0, 1); h_shape[Num.third.value].set_shape(Num.second.value, 1, 1); h_shape[Num.third.value].set_shape(Num.third.value, 1, 0); h_shape[Num.third.value].set_shape(Num.forth.value, 2, 0)
-    h_shape[Num.forth.value].set_shape(Num.first.value, 0, 0); h_shape[Num.forth.value].set_shape(Num.second.value, 0, 1); h_shape[Num.forth.value].set_shape(Num.third.value, 1, 1); h_shape[Num.forth.value].set_shape(Num.forth.value, 1, 2)
-
-
-class Block:
-    '''
-    쌓여있는 사각형들을 저장하는 클래스
-    
-    Attributes:
-        blocks      : 쌓여있는 사각형들  (list)
-        dic_y       : y축 기준으로 사각형이 몇개 있는 지 key : y값, value : 사각형 갯수 (dictionary)
-    Methods:
-        get_blocks  : num번째 쌓여있는 사각형의 list 리턴
-        set_block   : 쌓이는 블럭이 생길 시 list에 추가
-        add_dic_y   : dic_y 딕셔너리에 key, value 추가
-        erase_line  : blocks 리스트에서 특정 y값(num)이 같은 리스트 제거
-        push_down   : 지워진 줄 위에 위치한 블록들 한칸씩 내리기 위한 함수
-        change_key  : dic_y에 저장된 key값 또한 한칸씩 내리기 위한 함수
-    '''
-    def __init__(self) -> None:
-        self.blocks = []
-        self.dic_y = {}
-
-    def get_blocks(self, num)-> list:
-        return self.blocks[num]
-    
-    def set_block(self,list_a):
-        self.blocks += list_a
-    
-    def add_dic_y(self, key):
-        check = self.dic_y.get(key)
-        if check == None:
-            self.dic_y[key] = 1
-        else:
-            self.dic_y[key] += 1
-
-    def erase_line(self, num):
-        while 1:
-            count =0
-            for b in self.blocks:
-                if b[0] == num:
-                    count += 1
-                    self.blocks.remove(b)
-            if count ==0:
-                break
-
-    def push_down(self, num):
-        for block in self.blocks:
-            if block[0] < num:
-                block[0] += 10
-        self.change_key(num)
-        
-    def change_key(self, num):
-        self.dic_y[num] =0
-        for key in list(self.dic_y):
-            if key < num:
-                self.dic_y[key + 10]=self.dic_y.pop(key)
-
-class Current:
-    '''
-    현재 내려오고 있는 블럭을 나타내는 클래스
-    
-    Attributes:
-        pos         : 4개의 사각형의 [y,x] 좌표 (list)
-    Methods:
-        set_pos     : num을 통해 원하는 사각형의 x, y좌표를 지정할 수 있음
-        get_pos     : pos를 return
-        get_pos_x   : num번째 사각형의 x좌표 return
-        get_pos_y   : num번째 사각형의 x좌표 return
-    '''
-    def __init__(self) -> None:
-        self.pos = [[0,0], [0,0], [0,0], [0,0]]
-    
-    def set_pos(self, num, x, y):
-        self.pos[num] = [y,x]
-
-    def get_pos(self) ->list[list]:
-        return self.pos
-
-    def get_pos_x(self, num) ->int:
-        return self.pos[num][1]
-
-    def get_pos_y(self, num) ->int:
-        return self.pos[num][0]
+    h_shape[Num.first.value].set_square(Num.first.value, 0, 1);  h_shape[Num.first.value].set_square(Num.second.value, 1, 1); h_shape[Num.first.value].set_square(Num.third.value, 1, 0);  h_shape[Num.first.value].set_square(Num.forth.value, 2, 0)
+    h_shape[Num.second.value].set_square(Num.first.value, 0, 0); h_shape[Num.second.value].set_square(Num.second.value, 0, 1);h_shape[Num.second.value].set_square(Num.third.value, 1, 1); h_shape[Num.second.value].set_square(Num.forth.value, 1, 2)
+    h_shape[Num.third.value].set_square(Num.first.value, 0, 1);  h_shape[Num.third.value].set_square(Num.second.value, 1, 1); h_shape[Num.third.value].set_square(Num.third.value, 1, 0);  h_shape[Num.third.value].set_square(Num.forth.value, 2, 0)
+    h_shape[Num.forth.value].set_square(Num.first.value, 0, 0);  h_shape[Num.forth.value].set_square(Num.second.value, 0, 1); h_shape[Num.forth.value].set_square(Num.third.value, 1, 1);  h_shape[Num.forth.value].set_square(Num.forth.value, 1, 2)
 
 
 def rand_block(num)->list:

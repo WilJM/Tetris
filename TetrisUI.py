@@ -41,7 +41,7 @@ class TetrisUI():
         self.current_x = 100 
         self.current_y = 100 
         self.current_block = Tetris.Current() 
-        self.game_map = Tetris.Block() 
+        self.game_map = Tetris.Stack() 
         self.block = Tetris.rand_block(self.now) 
 
     def game_start(self): 
@@ -58,19 +58,19 @@ class TetrisUI():
             self.screen.fill((0,0,0))
 
             for i in range(4):
-                self.current_block.set_pos(i, self.current_x + self.block[i][1], self.current_y + self.block[i][0])
-                pygame.draw.rect(self.screen,(255,255,255),(self.current_block.get_pos_x(i), self.current_block.get_pos_y(i) , 10, 10))
+                self.current_block.set_square(i, self.current_x + self.block[i][1], self.current_y + self.block[i][0])
+                pygame.draw.rect(self.screen,(255,255,255),(self.current_block.get_square_x(i), self.current_block.get_square_y(i) , 10, 10))
            
             self.block_event()
-            a = self.erase_line()
+            num_erase = self.erase_line()
             
-            if len(a) > 0:
-                for lst in a:
-                    self.game_map.push_down(lst)
+            if len(num_erase) > 0:
+                for lst in num_erase:
+                    self.game_map.stack_down(lst)
             
-            if len(self.game_map.blocks) > 0:
-                for i in range(len(self.game_map.blocks)):
-                    pygame.draw.rect(self.screen,(255,255,255),(self.game_map.get_blocks(i)[1], self.game_map.get_blocks(i)[0], 10, 10))
+            if len(self.game_map.stacks) > 0:
+                for i in range(len(self.game_map.stacks)):
+                    pygame.draw.rect(self.screen,(255,255,255),(self.game_map.get_stack(i)[1], self.game_map.get_stack(i)[0], 10, 10))
 
             pygame.draw.lines(self.screen,(255,255,255), True, [[100,100],[100,400],[300,400],[300,100]],1)
 
@@ -93,8 +93,8 @@ class TetrisUI():
             for i in range(4):
                 if self.current_x + self.block[i][1] <= 100:
                     return
-                if len(self.game_map.blocks) > 0:    
-                    for lst in self.game_map.blocks:
+                if len(self.game_map.stacks) > 0:    
+                    for lst in self.game_map.stacks:
                         if self.current_y + self.block[i][0] <= lst[0] and lst[0] <= self.current_y + self.block[i][0] +10:   
                             if self.current_x + self.block[i][1] == lst[1] + 10:
                                 return
@@ -105,8 +105,8 @@ class TetrisUI():
                 if self.current_x + self.block[i][1] >= 290:
                     return
 
-                if len(self.game_map.blocks) > 0:    
-                    for lst in self.game_map.blocks:
+                if len(self.game_map.stacks) > 0:    
+                    for lst in self.game_map.stacks:
                         if self.current_y + self.block[i][0] <= lst[0] and lst[0] <= self.current_y + self.block[i][0] +10:   
                             if self.current_x + self.block[i][1]+10 == lst[1]:
                                 return
@@ -122,20 +122,20 @@ class TetrisUI():
 
     def block_event(self):
         for i in range(4):
-            if self.current_block.get_pos_y(i) == 390: # 바닥에 닿은 경우
-                self.game_map.set_block(self.current_block.get_pos())
+            if self.current_block.get_square_y(i) == 390: # 바닥에 닿은 경우
+                self.game_map.set_stacks(self.current_block.get_square())
                 for j in range(4):
-                    self.game_map.add_dic_y(self.current_block.get_pos_y(j))
+                    self.game_map.add_count_y(self.current_block.get_square_y(j))
                 self.current_block.__init__()
                 self.current_x = 100; self.current_y = 100
                 self.now = random.randint(0,23)
                 self.block = Tetris.rand_block(self.now)
                 return
-            for block in self.game_map.blocks: # 쌓인 블럭에 닿은 경우
-                if  self.current_block.get_pos_y(i) + 10== block[0] and self.current_block.get_pos_x(i) == block[1]:
-                    self.game_map.set_block(self.current_block.get_pos())
+            for block in self.game_map.stacks: # 쌓인 블럭에 닿은 경우
+                if  self.current_block.get_square_y(i) + 10== block[0] and self.current_block.get_square_x(i) == block[1]:
+                    self.game_map.set_stacks(self.current_block.get_square())
                     for j in range(4):
-                        self.game_map.add_dic_y(self.current_block.get_pos_y(j))
+                        self.game_map.add_count_y(self.current_block.get_square_y(j))
                     self.current_block.__init__()
                     self.current_x = 100; self.current_y = 100
                     self.now = random.randint(0,23)
@@ -144,9 +144,9 @@ class TetrisUI():
 
     def erase_line(self) ->list:
         key_list = []
-        for key in self.game_map.dic_y:
-            if self.game_map.dic_y[key] == 20:
-                self.game_map.erase_line(key)
+        for key in self.game_map.count_y:
+            if self.game_map.count_y[key] == 20:
+                self.game_map.remove_list(key)
                 key_list.append(key) 
         return key_list
 
