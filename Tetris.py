@@ -142,6 +142,9 @@ class Block:
         get_blocks  : num번째 쌓여있는 사각형의 list 리턴
         set_block   : 쌓이는 블럭이 생길 시 list에 추가
         add_dic_y   : dic_y 딕셔너리에 key, value 추가
+        erase_line  : blocks 리스트에서 특정 y값(num)이 같은 리스트 제거
+        push_down   : 지워진 줄 위에 위치한 블록들 한칸씩 내리기 위한 함수
+        change_key  : dic_y에 저장된 key값 또한 한칸씩 내리기 위한 함수
     '''
     def __init__(self) -> None:
         self.blocks = []
@@ -182,24 +185,19 @@ class Block:
             if key < num:
                 self.dic_y[key + 10]=self.dic_y.pop(key)
 
-    def end_game(self):
-        pass
-
 class Current:
     '''
-    블록의 각 모양을 x좌표, y좌표로 표현하기 위한 클래스
-    사각형 4개를 합쳐 하나의 블록을 만들기 위함
+    현재 내려오고 있는 블럭을 나타내는 클래스
     
     Attributes:
-        point       : 4개의 사각형의 [y,x] 좌표 (list)
-        rect_size   : point에서 1을 한칸으로 기준했기 때문에 원하는 사각형의 크기를 맞추기 위한 상수 (int)
+        pos         : 4개의 사각형의 [y,x] 좌표 (list)
     Methods:
-        set_shape   : num을 통해 원하는 사각형의 x, y좌표를 지정할 수 있음
-        get_shape_x : num번째 사각형의 x좌표 return
-        get_shape_y : num번째 사각형의 y좌표 return
+        set_pos     : num을 통해 원하는 사각형의 x, y좌표를 지정할 수 있음
+        get_pos     : pos를 return
+        get_pos_x   : num번째 사각형의 x좌표 return
+        get_pos_y   : num번째 사각형의 x좌표 return
     '''
     def __init__(self) -> None:
-        self.shpae_num = 0
         self.pos = [[0,0], [0,0], [0,0], [0,0]]
     
     def set_pos(self, num, x, y):
