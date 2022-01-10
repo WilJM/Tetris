@@ -7,12 +7,13 @@
             0000  <--- 블록,  0 <- 사각형
 '''
 from enum import Enum
+__bottom = 390
 
 class Num(Enum):
     '''
     first, second, thrid, forth를 1, 2, 3, 4로 표현하기 위한 Enum 열거 클래스
     '''
-    first =0; second =1; third=2; forth =3
+    first = 0; second = 1; third = 2; forth = 3
 
 class Block:
     '''
@@ -68,6 +69,23 @@ class Current:
     def get_square_y(self, num) ->int:
         return self.point[num][0]
 
+    def set_square_y(self, y):
+        lowest_y = self.get_lowest_y()
+        diff = y - lowest_y
+        for p in self.point:
+            p[0] = p[0]+diff
+
+    def get_lowest_y(self):
+        lowest_y = self.get_square_y(0)
+        for i in range(1,4):
+            lowest_y = lowest_y if lowest_y > self.get_square_y(i) else self.get_square_y(i)
+        return lowest_y
+
+
+
+
+
+
 class Stack:
     '''
     쌓여있는 사각형들을 저장하는 클래스
@@ -90,8 +108,8 @@ class Stack:
     def get_stack(self, num)-> list:
         return self.stacks[num]
     
-    def set_stacks(self,list_a):
-        self.stacks += list_a
+    def set_stacks(self, stacked_block):
+        self.stacks += stacked_block
     
     def add_count_y(self, key):
         check = self.count_y.get(key)
@@ -102,13 +120,19 @@ class Stack:
 
     def remove_list(self, num):
         while 1:
-            count =0
-            for b in self.stacks:
-                if b[0] == num:
+            count = 0
+            for block in self.stacks:
+                if block[0] == num:
                     count += 1
-                    self.stacks.remove(b)
-            if count ==0:
+                    self.stacks.remove(block)
+            if count == 0:
                 break
+
+    # def stack_heighest(self, x, y):
+    #     for block in self.stacks:
+
+
+
 
     def stack_down(self, num):
         for block in self.stacks:
@@ -117,10 +141,10 @@ class Stack:
         self.change_key(num)
         
     def change_key(self, num):
-        self.count_y[num] =0
+        self.count_y[num] = 0
         for key in list(self.count_y):
             if key < num:
-                self.count_y[key + 10]=self.count_y.pop(key)
+                self.count_y[key + 10] = self.count_y.pop(key)
 
 
 t_shape = [Block(), Block(), Block(), Block()]

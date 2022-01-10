@@ -40,6 +40,7 @@ class TetrisUI():
         self.one_block = 10 
         self.current_x = 100 
         self.current_y = 100 
+        self.__bottom = 390
         self.current_block = Tetris.Current() 
         self.game_map = Tetris.Stack() 
         self.block = Tetris.rand_block(self.now) 
@@ -93,11 +94,11 @@ class TetrisUI():
             for i in range(4):
                 if self.current_x + self.block[i][1] <= 100:
                     return
-                if len(self.game_map.stacks) > 0:    
-                    for lst in self.game_map.stacks:
-                        if self.current_y + self.block[i][0] <= lst[0] and lst[0] <= self.current_y + self.block[i][0] +10:   
-                            if self.current_x + self.block[i][1] == lst[1] + 10:
-                                return
+                #if len(self.game_map.stacks) > 0:    
+                for lst in self.game_map.stacks:
+                    if self.current_y + self.block[i][0] <= lst[0] and lst[0] <= self.current_y + self.block[i][0] + 10:   
+                        if self.current_x + self.block[i][1] == lst[1] + 10:
+                            return
             self.current_x -= self.one_block
 
         elif event[pygame.K_RIGHT]:
@@ -105,24 +106,38 @@ class TetrisUI():
                 if self.current_x + self.block[i][1] >= 290:
                     return
 
-                if len(self.game_map.stacks) > 0:    
-                    for lst in self.game_map.stacks:
-                        if self.current_y + self.block[i][0] <= lst[0] and lst[0] <= self.current_y + self.block[i][0] +10:   
-                            if self.current_x + self.block[i][1]+10 == lst[1]:
-                                return
+                #if len(self.game_map.stacks) > 0:    
+                for lst in self.game_map.stacks:
+                    if self.current_y + self.block[i][0] <= lst[0] and lst[0] <= self.current_y + self.block[i][0] + 10:   
+                        if self.current_x + self.block[i][1]+10 == lst[1]:
+                            return
             self.current_x += self.one_block
 
         elif event[pygame.K_DOWN]:
             self.current_y += self.one_block
+            self.block_event()
 
         elif event[pygame.K_UP]:
             self.now = (self.now + 6) % 24
             self.block = Tetris.rand_block(self.now)
 
+        elif event[pygame.K_SPACE]:
+            self.block_fall_predict()
+
+    def block_fall_predict(self):
+
+        now_x = set(self.current_block.get_square_x(0))
+        lowest_y = self.current_block.get_lowest_y()
+        for i in range(1,4):
+            now_x.add(self.current_block.get_square_x(i))
+
+        for block in self.game_map.stacks: # 쌓여있는 블럭에서 현재 좌표에서의 가장 높은 높이 리턴
+            block[0]
 
     def block_event(self):
         for i in range(4):
-            if self.current_block.get_square_y(i) == 390: # 바닥에 닿은 경우
+            if self.current_block.get_square_y(i) >= self.__bottom: # 바닥에 닿은 경우
+                self.current_block.set_square_y(self.__bottom)
                 self.game_map.set_stacks(self.current_block.get_square())
                 for j in range(4):
                     self.game_map.add_count_y(self.current_block.get_square_y(j))
@@ -132,7 +147,8 @@ class TetrisUI():
                 self.block = Tetris.rand_block(self.now)
                 return
             for block in self.game_map.stacks: # 쌓인 블럭에 닿은 경우
-                if  self.current_block.get_square_y(i) + 10== block[0] and self.current_block.get_square_x(i) == block[1]:
+                if  self.current_block.get_square_y(i) + 10 >= block[0] and self.current_block.get_square_x(i) == block[1]:
+                    self.current_block.set_square_y(block[0]-10)
                     self.game_map.set_stacks(self.current_block.get_square())
                     for j in range(4):
                         self.game_map.add_count_y(self.current_block.get_square_y(j))
