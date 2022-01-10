@@ -109,7 +109,7 @@ class TetrisUI():
                 #if len(self.game_map.stacks) > 0:    
                 for lst in self.game_map.stacks:
                     if self.current_y + self.block[i][0] <= lst[0] and lst[0] <= self.current_y + self.block[i][0] + 10:   
-                        if self.current_x + self.block[i][1]+10 == lst[1]:
+                        if self.current_x + self.block[i][1] + 10 == lst[1]:
                             return
             self.current_x += self.one_block
 
@@ -148,7 +148,7 @@ class TetrisUI():
                 return
             for block in self.game_map.stacks: # 쌓인 블럭에 닿은 경우
                 if  self.current_block.get_square_y(i) + 10 >= block[0] and self.current_block.get_square_x(i) == block[1]:
-                    self.current_block.set_square_y(block[0]-10)
+                    self.current_block.set_square_y(block[0] - 10) # x 축 이동으로 닿은 경우 & z 끼리 닿은 경우 수정 필요.
                     self.game_map.set_stacks(self.current_block.get_square())
                     for j in range(4):
                         self.game_map.add_count_y(self.current_block.get_square_y(j))
