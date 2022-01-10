@@ -81,11 +81,6 @@ class Current:
             lowest_y = lowest_y if lowest_y > self.get_square_y(i) else self.get_square_y(i)
         return lowest_y
 
-
-
-
-
-
 class Stack:
     '''
     쌓여있는 사각형들을 저장하는 클래스
@@ -129,6 +124,7 @@ class Stack:
                 break
 
     # def stack_heighest(self, x, y):
+    # """ 쌓여있는 블럭에서 현재 좌표에서의 가장 높은 높이 반환"""
     #     for block in self.stacks:
 
 

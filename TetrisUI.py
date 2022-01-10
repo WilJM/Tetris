@@ -131,7 +131,7 @@ class TetrisUI():
         for i in range(1,4):
             now_x.add(self.current_block.get_square_x(i))
 
-        for block in self.game_map.stacks: # 쌓여있는 블럭에서 현재 좌표에서의 가장 높은 높이 리턴
+        for block in self.game_map.stacks: 
             block[0]
 
     def block_event(self):
